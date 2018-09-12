@@ -83,7 +83,7 @@
 				withdrawAmount: null,
 				picked: '',
 				spender: settings.exchangeAddress,
-				curAddress: this.from,
+				curAddress: localStorage.getItem('currentAddress'),
 				newAccount: false,
 				incorrectKey: false,
 				newAccountKey: '',
@@ -149,6 +149,7 @@
 					var account = vm.web3.eth.accounts.privateKeyToAccount(vm.newAccountKey);
 					if (account.address !== vm.from) {
 						vm.localAccounts.push(account);
+						vm.curAddress = account.address;
 						localStorage.setItem('accounts', JSON.stringify(vm.localAccounts))
 					}
 					vm.newAccountKey = '';
