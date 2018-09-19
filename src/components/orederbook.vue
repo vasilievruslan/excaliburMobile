@@ -24,7 +24,7 @@
 						<div class="od-title">EXPIRES</div>
 						<div class="od-amount">{{order.expires}}</div>
 						<div class="od-title">ADDRESS</div>
-						<div class="od-amount">{{order.user}}</div>
+						<div class="od-amount">{{`${order.user.substr(0, 7)}...${order.user.substr(34, 42)}`}}</div>
 					</div>
 				</div>
 				<div class="orderbook-item">
@@ -194,7 +194,7 @@
 			},
 			spread(){
 				const vm = this;
-				return vm.listBuy.length !== 0 && vm.listSell.length !== 0 ? Math.max(vm.buy, vm.sell) - Math.min(vm.buy, vm.sell) : '-';
+				return vm.listBuy.length !== 0 && vm.listSell.length !== 0 ? +(Math.max(vm.buy, vm.sell) - Math.min(vm.buy, vm.sell)).toFixed(10) : '-';
 			},
 			txlink(){
 				return `${settings.network.etherscan}tx/${this.txhash}`
@@ -274,8 +274,8 @@
 				}else{
 					var data = vm.listSell[i]
 					vm.orderData = {
-						orderFills: (((data.orderFills * data.amountGive) / data.amountGet) / 10**18).toFixed(4),
-						price: (data.amountGet / data.amountGive).toFixed(4),
+						orderFills: +(((data.orderFills * data.amountGive) / data.amountGet) / 10**18).toFixed(4),
+						price: +(data.amountGet / data.amountGive).toFixed(4),
 					}
 
 					vm.order.amount = vm.orderData.orderFills;
@@ -363,22 +363,15 @@
 				let rsv = exchange.rsv(vm.web3, data.sig);
 
 				console.log([vm.contract, vm.from, data.tokenGet, data.amountGet, data.tokenGive, data.amountGive, data.expires, data.nonce, rsv.v, rsv.r, rsv.s, vm.pair.path]);
-				if (vm.$parent.walletType) {
+			
+			
+				await exchangeLocal.cancel(vm.contract, Tx, settings.exchangeAddress, vm.from, vm.$parent.privateKeyBuffer, 5, 0, data.tokenGet, EthUtil.toBuffer(data.amountGet), data.tokenGive, EthUtil.toBuffer(data.amountGive), data.expires, data.nonce, rsv.v, rsv.r, rsv.s, vm.pair.path, function(h){
+					vm.txhash = String(h);
+					if (vm.txhash !== undefined) {
+						vm.popup = true
+					}
+				})
 
-					await exchange.cancelOrder(vm.contract, vm.from, data.tokenGet, data.amountGet, data.tokenGive, data.amountGive, data.expires, data.nonce, rsv.v, rsv.r, rsv.s, vm.pair.path, function(h){
-						vm.txhash = String(h);
-						if (vm.txhash !== undefined) {
-							vm.popup = true
-						}
-					})
-				}else{
-					await exchangeLocal.cancel(vm.contract, Tx, settings.exchangeAddress, vm.from, vm.$parent.privateKeyBuffer, 5, 0, data.tokenGet, data.amountGet, data.tokenGive, data.amountGive, data.expires, data.nonce, rsv.v, rsv.r, rsv.s, vm.pair.path, function(h){
-						vm.txhash = String(h);
-						if (vm.txhash !== undefined) {
-							vm.popup = true
-						}
-					})
-				}
 				setTimeout(function(){
 					vm.cancelForm = false;
 				}, 3000)

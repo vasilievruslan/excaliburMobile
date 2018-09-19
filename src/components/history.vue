@@ -66,6 +66,8 @@
 				console.log('tradeHistoryCollection:', tradeHistoryCollection);
 				this.historyData = tradeHistoryCollection._items.reverse()
 				this.historyData.forEach(element => {vm.formating(element)})
+
+				this.$parent.lastDeal = this.historyData.shift().price;
 			},
 			trade(trade){
 				this.formating(trade);

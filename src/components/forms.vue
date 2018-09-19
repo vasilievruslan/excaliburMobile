@@ -233,6 +233,13 @@
 					this.buyPrice = '';
 					this.getPrice();
 				}
+			},
+			pushOrder(pushOrder){
+				const vm = this;
+				if (pushOrder.maker == vm.from) {
+					vm.buyAmount = '';
+					vm.sellAmount = '';
+				}
 			}
 		},
 		props:{
@@ -249,114 +256,115 @@
 			getPrice(){
 				const vm = this;
 				try {
-					vm.buyPrice = vm.updatePrice == true ? vm.lastDeal.price : vm.buyPrice;
-					vm.sellPrice = vm.updatePrice == true ? vm.lastDeal.price : vm.sellPrice;
+					vm.buyPrice = vm.updatePrice == true ? vm.lastDeal : vm.buyPrice;
+					vm.sellPrice = vm.updatePrice == true ? vm.lastDeal : vm.sellPrice;
 				} catch(e) {
 					console.log(e);
 				}
 			},
-			depositMetamask(){
-				const vm = this
-				if (this.depositToken == '0x0000000000000000000000000000000000000000') {
-					exchange.deposit(this.contract, this.from, (this.depositAmount * 10**18).noExponents(), function(h){
-						if (h != undefined) {
-							vm.txhash = String(h);
-							vm.tx = true;
-						}
-					}).then(res => console.log(res), err => console.log(err))
-				}else{
-					(async function () {
-						const contract = exchange.initContract(vm.web3, settings.tokenAbi, vm.depositToken)
-						console.log(contract)
-						await exchange.depositToken(vm.contract, contract, vm.from, vm.spender, vm.depositToken, (vm.depositAmount * 10**18).noExponents(), function(h){
-							if (h != undefined) {
-								vm.txhash = String(h);
-								vm.tx = true;
-							}
-						}).then(res => console.log(res), err => console.log(err))
-					})()
-				}
-			},
-			depositLocal(){
-				const vm = this
-				var amount = vm.depositAmount * 10**18
-				if (this.depositToken == '0x0000000000000000000000000000000000000000') {
-					exchangeLocal.depositLocal(vm.web3, Tx, vm.contract, vm.spender, vm.from, vm.$parent.privateKeyBuffer, 5, EthUtil.toBuffer(amount),  function(h){
-							if (h != undefined) {
-								vm.txhash = String(h);
-								vm.tx = true;
-							}
-						})
-				}else{
-					const tokenContract = new vm.web3.eth.Contract(settings.tokenAbi, vm.depositToken);
-					exchangeLocal.depositTokenLocal(vm.web3, Tx, vm.contract, tokenContract, vm.spender, vm.depositToken, vm.from, vm.$parent.privateKeyBuffer, 10, amount, 0, function(h){
-							if (h != undefined) {
-								vm.txhash = String(h);
-								vm.tx = true;
-							}
-						});
-				}
-			},
-			deposit() {
-				const vm = this
-				if (this.$parent.walletType) {
-					vm.depositMetamask();
-				}else{
-					vm.depositLocal();
-				}
-			},
-			withdrawAlert(){
-				this.withdrawBool = true;
-			},
-			withdrawLocal(){
-				const vm = this
-				if (this.withdrawToken == '0x0000000000000000000000000000000000000000') {
-					exchangeLocal.withdrawLocal(vm.web3, Tx, vm.contract, vm.spender, vm.from, vm.$parent.privateKeyBuffer, 5, vm.withdrawAmount * 10**18, 0, function(h){
-							if (h != undefined) {
-								vm.txhash = String(h);
-								vm.tx = true;
-							}
-						})
-				}else{
-					const tokenContract = new vm.web3.eth.Contract(settings.tokenAbi, vm.withdrawToken);
-					exchangeLocal.withdrawTokenLocal(vm.web3, Tx, vm.contract, tokenContract, vm.spender, vm.withdrawToken, vm.from, vm.$parent.privateKeyBuffer, 10, vm.withdrawAmount * 10**18, 0, function(h){
-							if (h != undefined) {
-								vm.txhash = String(h);
-								vm.tx = true;
-							}
-						});
-				}
 
-			},
-			withdrawMetamask(){
-				const vm = this;
-				if (vm.withdrawAmount !== null) {
-					if (this.withdrawToken == '0x0000000000000000000000000000000000000000') {
-						exchange.withdraw(this.contract, this.from, this.withdrawAmount * 10**18, function(h){
-							if (h != undefined) {
-								vm.txhash = String(h);
-								vm.tx = true;
-							}
-						}).then(res => console.log(res), err => console.log(err))
-					}else{
-						exchange.withdrawToken(this.contract, this.from, this.withdrawToken, this.withdrawAmount * 10**18, function(h){
-							if (h != undefined) {
-								vm.txhash = String(h);
-								vm.tx = true;
-							}
-						}).then(res => console.log(res), err => console.log(err))
-					}
-				}
-			},
-			withdraw() {
-				const vm = this
-				this.withdrawBool = false;
-				if (this.$parent.walletType) {
-					vm.withdrawMetamask();
-				}else{
-					vm.withdrawLocal();
-				}
-			},
+			// depositMetamask(){
+			// 	const vm = this
+			// 	if (this.depositToken == '0x0000000000000000000000000000000000000000') {
+			// 		exchange.deposit(this.contract, this.from, (this.depositAmount * 10**18).noExponents(), function(h){
+			// 			if (h != undefined) {
+			// 				vm.txhash = String(h);
+			// 				vm.tx = true;
+			// 			}
+			// 		}).then(res => console.log(res), err => console.log(err))
+			// 	}else{
+			// 		(async function () {
+			// 			const contract = exchange.initContract(vm.web3, settings.tokenAbi, vm.depositToken)
+			// 			console.log(contract)
+			// 			await exchange.depositToken(vm.contract, contract, vm.from, vm.spender, vm.depositToken, (vm.depositAmount * 10**18).noExponents(), function(h){
+			// 				if (h != undefined) {
+			// 					vm.txhash = String(h);
+			// 					vm.tx = true;
+			// 				}
+			// 			}).then(res => console.log(res), err => console.log(err))
+			// 		})()
+			// 	}
+			// },
+			// depositLocal(){
+			// 	const vm = this
+			// 	var amount = vm.depositAmount * 10**18
+			// 	if (this.depositToken == '0x0000000000000000000000000000000000000000') {
+			// 		exchangeLocal.depositLocal(vm.web3, Tx, vm.contract, vm.spender, vm.from, vm.$parent.privateKeyBuffer, 5, EthUtil.toBuffer(amount),  function(h){
+			// 				if (h != undefined) {
+			// 					vm.txhash = String(h);
+			// 					vm.tx = true;
+			// 				}
+			// 			})
+			// 	}else{
+			// 		const tokenContract = new vm.web3.eth.Contract(settings.tokenAbi, vm.depositToken);
+			// 		exchangeLocal.depositTokenLocal(vm.web3, Tx, vm.contract, tokenContract, vm.spender, vm.depositToken, vm.from, vm.$parent.privateKeyBuffer, 10, amount, 0, function(h){
+			// 				if (h != undefined) {
+			// 					vm.txhash = String(h);
+			// 					vm.tx = true;
+			// 				}
+			// 			});
+			// 	}
+			// },
+			// deposit() {
+			// 	const vm = this
+			// 	if (this.$parent.walletType) {
+			// 		vm.depositMetamask();
+			// 	}else{
+			// 		vm.depositLocal();
+			// 	}
+			// },
+			// withdrawAlert(){
+			// 	this.withdrawBool = true;
+			// },
+			// withdrawLocal(){
+			// 	const vm = this
+			// 	if (this.withdrawToken == '0x0000000000000000000000000000000000000000') {
+			// 		exchangeLocal.withdrawLocal(vm.web3, Tx, vm.contract, vm.spender, vm.from, vm.$parent.privateKeyBuffer, 5, vm.withdrawAmount * 10**18, 0, function(h){
+			// 				if (h != undefined) {
+			// 					vm.txhash = String(h);
+			// 					vm.tx = true;
+			// 				}
+			// 			})
+			// 	}else{
+			// 		const tokenContract = new vm.web3.eth.Contract(settings.tokenAbi, vm.withdrawToken);
+			// 		exchangeLocal.withdrawTokenLocal(vm.web3, Tx, vm.contract, tokenContract, vm.spender, vm.withdrawToken, vm.from, vm.$parent.privateKeyBuffer, 10, vm.withdrawAmount * 10**18, 0, function(h){
+			// 				if (h != undefined) {
+			// 					vm.txhash = String(h);
+			// 					vm.tx = true;
+			// 				}
+			// 			});
+			// 	}
+
+			// },
+			// withdrawMetamask(){
+			// 	const vm = this;
+			// 	if (vm.withdrawAmount !== null) {
+			// 		if (this.withdrawToken == '0x0000000000000000000000000000000000000000') {
+			// 			exchange.withdraw(this.contract, this.from, this.withdrawAmount * 10**18, function(h){
+			// 				if (h != undefined) {
+			// 					vm.txhash = String(h);
+			// 					vm.tx = true;
+			// 				}
+			// 			}).then(res => console.log(res), err => console.log(err))
+			// 		}else{
+			// 			exchange.withdrawToken(this.contract, this.from, this.withdrawToken, this.withdrawAmount * 10**18, function(h){
+			// 				if (h != undefined) {
+			// 					vm.txhash = String(h);
+			// 					vm.tx = true;
+			// 				}
+			// 			}).then(res => console.log(res), err => console.log(err))
+			// 		}
+			// 	}
+			// },
+			// withdraw() {
+			// 	const vm = this
+			// 	this.withdrawBool = false;
+			// 	if (this.$parent.walletType) {
+			// 		vm.withdrawMetamask();
+			// 	}else{
+			// 		vm.withdrawLocal();
+			// 	}
+			// },
 			postOrder(tokenGet, tokenGive, amountGet, amountGive, orderType){
 				const vm = this;
 				(async function(){

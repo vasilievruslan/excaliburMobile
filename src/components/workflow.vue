@@ -106,13 +106,14 @@
 	export default {
 		data(){
 			return{
-				curTab: 'manage',
+				curTab: 'charts',
 				pairs: settings.pairs,
 				from: null,
 				tabName: '',
 				preLoader: true,
 				accounts: [],
 				metamaskAccount: '',
+				lastDeal: '',
 			}
 		},
 		computed: {
@@ -145,9 +146,6 @@
 			    	t2: this.pair.tokens[1],
 				}
 			},
-			lastDeal(){ 
-				return this.$refs.history;
-			}, 
 			pairID(){
 				return this.$route.params.id
 			},
@@ -163,12 +161,14 @@
 		    connect(){
 		    	var vm = this;
 		    	console.log('socket connected');
-		    	setTimeout(function(){vm.preLoader = false}, 3000)
+		    	setTimeout(function(){
+		    		vm.preLoader = false
+		    	}, 3000)
 
 		    },
 			trade(trade) {
 			   console.log('trade:', trade);
-			}
+			},
 		},
 		watch: {
 			pair() {
